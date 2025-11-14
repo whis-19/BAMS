@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAMS Control Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Blockchain Attendance Management System</h1>
+
+    <div class="container">
+        <div class="column">
+            <h2>Create Entities</h2>
+
+            <form id="form-create-dept">
+                <h3>1. Create Department</h3>
+                <input type="text" id="dept-name" placeholder="Department Name" required>
+                <button type="submit">Create</button>
+            </form>
+
+            <form id="form-create-class">
+                <h3>2. Create Class</h3>
+                <input type="text" id="class-dept-name" placeholder="Department Name" required>
+                <input type="text" id="class-name" placeholder="Class Name" required>
+                <button type="submit">Create</button>
+            </form>
+
+            <form id="form-create-student">
+                <h3>3. Create Student</h3>
+                <input type="text" id="student-dept-name" placeholder="Department Name" required>
+                <input type="text" id="student-class-name" placeholder="Class Name" required>
+                <input type="text" id="student-name" placeholder="Student Name" required>
+                <input type="text" id="student-rollno" placeholder="Roll No (e.g., F22-3722)" required>
+                <button type="submit">Create</button>
+            </form>
+        </div>
+
+        <div class="column">
+            <h2>Mark Attendance</h2>
+
+            <form id="form-mark-attendance">
+                <h3>Mark Attendance</h3>
+                <input type="text" id="attn-dept" placeholder="Department Name" required>
+                <input type="text" id="attn-class" placeholder="Class Name" required>
+                <input type="text" id="attn-rollno" placeholder="Student Roll No" required>
+                <select id="attn-status" required>
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Leave">Leave</option>
+                </select>
+                <button type="submit">Mark</button>
+            </form>
+
+            <h2>View Student Chain</h2>
+            <form id="form-view-student">
+                <h3>View Student's Full Chain</h3>
+                <input type="text" id="view-dept" placeholder="Department Name" required>
+                <input type="text" id="view-class" placeholder="Class Name" required>
+                <input type="text" id="view-rollno" placeholder="Student Roll No" required>
+                <button type="submit">View Chain</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="results-container">
+        <h2>API Results & Chain View</h2>
+        <button id="btn-validate-all">Validate Entire System</button>
+        <pre id="api-result">
+            Your API call results will appear here.
+        </pre>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
