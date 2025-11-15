@@ -2,7 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // --- Configuration ---
-    const API_BASE_URL = "http://localhost:3001";
+    const API_BASE_URL = "https://bams-ju3q.onrender.com";
     const resultBox = document.getElementById("api-result");
 
     // --- Helper Function for API calls ---
