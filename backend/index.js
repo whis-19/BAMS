@@ -42,14 +42,6 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api', apiRoutes);
 
-// Serve static files for the frontend (index.html, css, js)
-app.use(express.static('frontend')); 
-
-// Catch-all route for other GET requests (can serve index.html for SPA if needed)
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: 'frontend' });
-});
-
 // Basic Error Handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
