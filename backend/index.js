@@ -39,6 +39,11 @@ app.use((req, res, next) => {
     next();
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
+});
+
 // API Routes
 app.use('/api', apiRoutes);
 

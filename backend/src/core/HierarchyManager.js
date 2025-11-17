@@ -13,7 +13,19 @@ class HierarchyManager {
             classes: {},     // Stores Class Chains
             students: {}     // Stores Student Chains
         };
-        this.loadChains();
+        this.isInitialized = false;
+        // Initialize synchronously with fallback; actual load happens asynchronously
+        this._initializeAsync();
+    }
+
+    /**
+     * Asynchronously initializes the blockchain structure.
+     * Called from constructor; does not block initialization.
+     */
+    _initializeAsync() {
+        this.loadChains().catch(err => {
+            console.error("Error during async HierarchyManager initialization:", err.message);
+        });
     }
 
     /**
@@ -41,8 +53,10 @@ class HierarchyManager {
             }
 
             console.log("Blockchain structure loaded successfully.");
+            this.isInitialized = true;
         } catch (error) {
             console.error("Failed to load blockchain data, starting with empty structure:", error.message);
+            this.isInitialized = true;
         }
     }
 

@@ -1,7 +1,11 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const dataDir = path.join(__dirname, '..', '..', 'data');
+// Use /tmp for production (Vercel), local data dir for development
+const dataDir = process.env.NODE_ENV === 'production'
+  ? '/tmp'
+  : path.join(__dirname, '..', '..', 'data');
+
 const fullPath = (filename) => path.join(dataDir, filename);
 
 /**
