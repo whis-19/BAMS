@@ -56,36 +56,14 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something broke!', error: err.message });
 });
 
-// Start the server
-const server = app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    console.log('Hierarchy Manager initialized and data loaded.');
-});
-
-// Handle server errors
-server.on('error', (err) => {
-    console.error('Server error:', err);
-    process.exit(1);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught exception:', err);
-    process.exit(1);
-});
-
-// Handle unhandled rejections
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection at:', promise, 'reason:', reason);
-    process.exit(1);
-});
-
-// In your backend/index.js
+// NOTE: Do NOT call app.listen() in a serverless environment like Vercel.
+// Export the Express app so Vercel (@vercel/node) can handle requests.
+// Keep runtime-safe error logging but avoid exiting the process.
 const path = require('path');
 const fs = require('fs');
 
-// Use process.cwd() for Vercel compatibility
-const dataPath = process.env.NODE_ENV === 'production' 
+// Use process.cwd() for Vercel compatibility; writeable tmp dir for production
+const dataPath = process.env.NODE_ENV === 'production'
   ? path.join('/tmp', 'bams_structure.json')
   : path.join(__dirname, 'data', 'bams_structure.json');
 
@@ -110,4 +88,9 @@ const writeData = (data) => {
   }
 };
 
-export default app;
+// Export the Express app so Vercel can use it as a serverless handler
+module.exports = app;
+
+// Optional: also expose read/write helpers for tests or other modules
+module.exports.readData = readData;
+module.exports.writeData = writeData;
