@@ -80,72 +80,32 @@ process.on('unhandledRejection', (reason, promise) => {
     process.exit(1);
 });
 
-// Data path configuration
+// In your backend/index.js
 const path = require('path');
 const fs = require('fs');
 
-// Determine the base directory for data
-const getDataPath = (filename) => {
-  const isVercel = process.env.VERCEL === '1';
-  const baseDir = isVercel 
-    ? path.join('/tmp', 'backend', 'data')
-    : path.join(__dirname, 'data');
-    
-  // Create directory if it doesn't exist
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true });
-  }
-  
-  return path.join(baseDir, filename);
-};
+// Use process.cwd() for Vercel compatibility
+const dataPath = process.env.NODE_ENV === 'production' 
+  ? path.join('/tmp', 'bams_structure.json')
+  : path.join(__dirname, 'data', 'bams_structure.json');
 
-// Data file paths
-const DATA_FILES = {
-  structure: getDataPath('bams_structure.json'),
-  // Add other data files here if needed
-};
-
-// Data access functions
-const readData = (type = 'structure') => {
+// Create a function to read/write data
+const readData = () => {
   try {
-    const filePath = DATA_FILES[type];
-    if (!fs.existsSync(filePath)) {
-      // If file doesn't exist in /tmp, copy from original location (Vercel)
-      if (process.env.VERCEL === '1' && !filePath.includes('/tmp')) {
-        const originalPath = path.join(__dirname, 'data', `${type}.json`);
-        if (fs.existsSync(originalPath)) {
-          const data = fs.readFileSync(originalPath, 'utf8');
-          writeData(type, JSON.parse(data));
-          return JSON.parse(data);
-        }
-      }
-      return null;
-    }
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   } catch (error) {
-    console.error(`Error reading ${type} data:`, error);
+    console.error('Error reading data file:', error);
     return null;
   }
 };
 
-const writeData = (type = 'structure', data) => {
+const writeData = (data) => {
   try {
-    const filePath = DATA_FILES[type];
-    const dir = path.dirname(filePath);
-    
-    // Ensure directory exists
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    // In Vercel, write to /tmp directory which is writable
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
     return true;
   } catch (error) {
-    console.error(`Error writing ${type} data:`, error);
+    console.error('Error writing data file:', error);
     return false;
   }
 };
-
-// Make data functions available globally
-global.readData = readData;
-global.writeData = writeData;

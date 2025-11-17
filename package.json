@@ -5,10 +5,7 @@
   "main": "backend/index.js",
   "scripts": {
     "start": "node backend/index.js",
-    "dev": "nodemon backend/index.js",
-    "build": "npm run copy-data && cd frontend && npm install && npm run build",
-    "vercel-build": "npm install && npm run copy-data && cd frontend && npm install && npm run build",
-    "copy-data": "mkdir -p /tmp/backend/data && cp -r backend/data/* /tmp/backend/data/ || true"
+    "dev": "nodemon backend/index.js"
   },
   "keywords": [
     "blockchain",
