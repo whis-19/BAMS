@@ -109,3 +109,5 @@ const writeData = (data) => {
     return false;
   }
 };
+
+export default app;
