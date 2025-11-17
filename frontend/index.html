@@ -137,9 +137,9 @@
     </div>
 
     <script>
-        const API_BASE = window.location.hostname === '127.0.0.1' 
-            ? 'http://127.0.0.1:3000/api' 
-            : 'http://localhost:3000/api';      
+        // API_BASE: Use current origin so it works on localhost, Vercel, or any domain
+        const API_BASE = `${window.location.origin}/api`;
+        
 function showSection(sectionId) {
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {

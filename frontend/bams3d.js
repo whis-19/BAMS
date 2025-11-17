@@ -3,8 +3,11 @@ let scene, camera, renderer, controls, bamsData = {};
 
 async function init3DView() {
     try {
-        // Load BAMS data
-        const response = await fetch('/api/bams-structure');
+        // Load BAMS data from explorer endpoint
+        const response = await fetch(`${window.location.origin}/api/explorer`);
+        if (!response.ok) {
+            throw new Error(`Failed to load explorer data: ${response.status} ${response.statusText}`);
+        }
         bamsData = await response.json();
         
         // Setup Three.js scene
