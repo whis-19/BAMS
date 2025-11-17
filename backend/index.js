@@ -2,48 +2,30 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const apiRoutes = require('./src/routes/apiRoutes');
-
 // Ensure HierarchyManager is initialized to load data on startup
-let hierarchyManager;
-let departmentService;
-let classService;
-let studentService;
+const hierarchyManager = require('./src/core/HierarchyManager');
 
-try {
-    hierarchyManager = require('./src/core/HierarchyManager');
-    
-    // Initialize services with HierarchyManager
-    const departmentServiceFactory = require('./src/services/departmentService');
-    const classServiceFactory = require('./src/services/classService');
-    const studentServiceFactory = require('./src/services/studentService');
+// Initialize services with HierarchyManager
+const departmentServiceFactory = require('./src/services/departmentService');
+const classServiceFactory = require('./src/services/classService');
+const studentServiceFactory = require('./src/services/studentService');
 
-    departmentService = departmentServiceFactory(hierarchyManager);
-    classService = classServiceFactory(hierarchyManager);
-    studentService = studentServiceFactory(hierarchyManager);
+const departmentService = departmentServiceFactory(hierarchyManager);
+const classService = classServiceFactory(hierarchyManager);
+const studentService = studentServiceFactory(hierarchyManager);
 
-    // Export services globally for controllers to use
-    global.departmentService = departmentService;
-    global.classService = classService;
-    global.studentService = studentService;
-    global.hierarchyManager = hierarchyManager;
-    
-    console.log('[INIT] Services initialized successfully');
-} catch (error) {
-    console.error('[INIT] Error initializing services:', error.message);
-    console.error('[INIT] Stack:', error.stack);
-    // Set empty fallbacks so the app doesn't crash
-    global.hierarchyManager = { chains: { departments: {}, classes: {}, students: {} }, validateHierarchy: () => ({ isValid: true, message: 'Uninitialized' }) };
-    global.departmentService = {};
-    global.classService = {};
-    global.studentService = {};
-}
+// Export services globally for controllers to use
+global.departmentService = departmentService;
+global.classService = classService;
+global.studentService = studentService;
+global.hierarchyManager = hierarchyManager;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 const corsOptions = {
-  origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:8000', 'http://localhost:3000'],
+  origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:8000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -57,18 +39,15 @@ app.use((req, res, next) => {
     next();
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
-});
-
 // API Routes
 app.use('/api', apiRoutes);
 
-// 404 handler for unmapped routes
-app.use((req, res) => {
-    console.warn(`[404] Unmapped route: ${req.method} ${req.path}`);
-    res.status(404).json({ message: 'Route not found', path: req.path, method: req.method });
+// Serve static files for the frontend (index.html, css, js)
+app.use(express.static('frontend')); 
+
+// Catch-all route for other GET requests (can serve index.html for SPA if needed)
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: 'frontend' });
 });
 
 // Basic Error Handling
@@ -77,14 +56,36 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something broke!', error: err.message });
 });
 
-// NOTE: Do NOT call app.listen() in a serverless environment like Vercel.
-// Export the Express app so Vercel (@vercel/node) can handle requests.
-// Keep runtime-safe error logging but avoid exiting the process.
+// Start the server
+const server = app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log('Hierarchy Manager initialized and data loaded.');
+});
+
+// Handle server errors
+server.on('error', (err) => {
+    console.error('Server error:', err);
+    process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err);
+    process.exit(1);
+});
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
+
+// In your backend/index.js
 const path = require('path');
 const fs = require('fs');
 
-// Use process.cwd() for Vercel compatibility; writeable tmp dir for production
-const dataPath = process.env.NODE_ENV === 'production'
+// Use process.cwd() for Vercel compatibility
+const dataPath = process.env.NODE_ENV === 'production' 
   ? path.join('/tmp', 'bams_structure.json')
   : path.join(__dirname, 'data', 'bams_structure.json');
 
@@ -108,10 +109,3 @@ const writeData = (data) => {
     return false;
   }
 };
-
-// Export the Express app so Vercel can use it as a serverless handler
-module.exports = app;
-
-// Optional: also expose read/write helpers for tests or other modules
-module.exports.readData = readData;
-module.exports.writeData = writeData;

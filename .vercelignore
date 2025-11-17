@@ -1,53 +1,35 @@
 # Dependencies
 node_modules/
+npm-debug.log
 
 # Environment variables
 .env
-.env.local
+.env.*
+!.env.example
+
+# Version control
+.git
+.gitignore
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Build files
 build/
 dist/
 
-# Git
-.git
-.gitignore
-
-# Editor directories and files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Local development
+# Local data files
+*.db
+*.sqlite
+
+# System files
 .DS_Store
-
-# Test files
-__tests__/
-*.test.js
-*.spec.js
-
-# Documentation
-*.md
-documentation/
-
-# Data files (we'll handle this separately)
-# backend/data/*.json
-
-# Ignore all files then include only what's needed
-**/*
-!backend/
-!frontend/
-!package.json
-!vercel.json
-!README.md
+Thumbs.db
