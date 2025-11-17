@@ -6,11 +6,19 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "frontend/**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/api/bams-structure",
+      "dest": "/api/bams-structure.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/backend/index.js"
@@ -19,5 +27,8 @@
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
