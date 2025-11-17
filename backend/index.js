@@ -79,33 +79,3 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled rejection at:', promise, 'reason:', reason);
     process.exit(1);
 });
-
-// In your backend/index.js
-const path = require('path');
-const fs = require('fs');
-
-// Use process.cwd() for Vercel compatibility
-const dataPath = process.env.NODE_ENV === 'production' 
-  ? path.join('/tmp', 'bams_structure.json')
-  : path.join(__dirname, 'data', 'bams_structure.json');
-
-// Create a function to read/write data
-const readData = () => {
-  try {
-    return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  } catch (error) {
-    console.error('Error reading data file:', error);
-    return null;
-  }
-};
-
-const writeData = (data) => {
-  try {
-    // In Vercel, write to /tmp directory which is writable
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Error writing data file:', error);
-    return false;
-  }
-};
