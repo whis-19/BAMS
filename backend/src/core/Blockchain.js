@@ -1,97 +1,101 @@
-const Block = require('./Block.js');
+const Block = require('./Block');
+const crypto = require('crypto');
 
+/**
+ * Manages a single chain of blocks (e.g., Department, Class, or Student Chain).
+ */
 class Blockchain {
-    /**
-     * @param {string} [genesis_prev_hash=null] - Optional prev_hash for linking chains.
-     * @param {any} [genesis_data='Genesis Block'] - Data for the first block.
-     */
-    constructor(genesis_prev_hash = null, genesis_data = 'Genesis Block') {
-        // Difficulty for the Proof of Work (must start with "0000") [cite: 91]
-        this.difficulty = 4;
-        
-        // The chain is an array of blocks, starting with the Genesis block
-        this.chain = [this.createGenesisBlock(genesis_prev_hash, genesis_data)];
+    constructor(id = 'GENESIS_CHAIN', type = 'department', prev_hash = '') {
+        this.id = id;
+        this.type = type;
+        this.chain = [];
+        this.createGenesisBlock(prev_hash);
     }
 
     /**
-     * Creates the very first block (index 0) in the chain.
-     * @param {string} prev_hash - For Layer 2/3 chains, this is the parent's hash.
-     * @param {any} data - The transaction data for the genesis block.
+     * Creates the first block of the chain.
+     * For Class and Student chains, the prev_hash comes from the parent chain. [cite: 105, 106, 108, 109]
+     * @param {string} parentHash - The hash of the parent chain's last block.
      */
-    createGenesisBlock(prev_hash, data) {
-        // If prev_hash is null, it's a Layer 1 chain (Department).
-        // If it's provided, it links this chain to a parent. [cite: 102, 105]
-        const effective_prev_hash = prev_hash === null ? "0" : prev_hash;
-        
-        let genesisBlock = new Block(0, Date.now(), data, effective_prev_hash);
-        
-        // Even the genesis block must be "mined"
-        // console.log("Mining Genesis Block..."); // Optional: for debugging
-        genesisBlock.mineBlock(this.difficulty);
-        
-        return genesisBlock;
+    createGenesisBlock(parentHash) {
+        const genesisData = {
+            message: `${this.type.toUpperCase()} Genesis Block`,
+            id: this.id,
+            type: this.type,
+            creationDate: new Date().toISOString()
+        };
+        const genesisBlock = new Block(0, genesisData, parentHash);
+        genesisBlock.mineBlock(); // PoW on Genesis block
+        this.chain.push(genesisBlock);
     }
 
-    /**
-     * Gets the most recent block on the chain.
-     */
     getLatestBlock() {
         return this.chain[this.chain.length - 1];
     }
 
     /**
-     * Creates a new block, mines it, and adds it to the chain.
-     * @param {any} transactionData - The data to add [cite: 36, 77]
+     * Adds a new block (transaction/metadata update) to the chain.
+     * @param {object} transactions - The data to include in the block.
+     * @returns {Block} The newly added and mined block.
      */
-    addBlock(transactionData) {
+    addBlock(transactions) {
         const latestBlock = this.getLatestBlock();
-        
-        // Create the new block
-        let newBlock = new Block(
+        const newBlock = new Block(
             latestBlock.index + 1,
-            Date.now(),
-            transactionData,
-            latestBlock.hash // The new block's prev_hash is the *current* latest block's hash
+            transactions,
+            latestBlock.hash
         );
-
-        // Mine the new block
-        // console.log(`Mining block ${newBlock.index}...`); // Optional: for debugging
-        newBlock.mineBlock(this.difficulty);
-        
-        // Add it to the chain
+        newBlock.mineBlock();
         this.chain.push(newBlock);
+        return newBlock;
     }
 
     /**
-     * Validates the integrity of the entire blockchain. [cite: 93]
+     * Checks if the chain is valid (hashes match and PoW holds). [cite: 97]
+     * @returns {boolean} True if the chain is valid, false otherwise.
      */
     isChainValid() {
         for (let i = 1; i < this.chain.length; i++) {
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i - 1];
 
-            // 1. Check if the stored hash is correct by recalculating it [cite: 93]
-            if (currentBlock.hash !== currentBlock.calculateHash()) {
-                console.error(`Validation Error: Hash mismatch on block ${currentBlock.index}`);
+            // 1. Check if the current block's hash is correctly computed (PoW validation is part of this check)
+            if (currentBlock.hash !== currentBlock.recalculateHash()) {
+                console.error(`Chain ID: ${this.id}, Block ${currentBlock.index} hash is invalid.`);
                 return false;
             }
 
-            // 2. Check if it points to the correct previous block [cite: 93]
+            // 2. Check if the previous hash links correctly
             if (currentBlock.prev_hash !== previousBlock.hash) {
-                console.error(`Validation Error: Previous hash mismatch on block ${currentBlock.index}`);
+                console.error(`Chain ID: ${this.id}, Block ${currentBlock.index} is not linked correctly.`);
                 return false;
             }
-            
-            // 3. Check if the PoW is valid [cite: 93]
-            const target = '0'.repeat(this.difficulty);
-            if (currentBlock.hash.substring(0, this.difficulty) !== target) {
-                console.error(`Validation Error: Proof of Work invalid on block ${currentBlock.index}`);
+
+            // 3. Check PoW condition explicitly (redundant if recalculateHash works, but good for clarity) [cite: 128]
+            if (!currentBlock.isPoWValid()) {
+                console.error(`Chain ID: ${this.id}, Block ${currentBlock.index} PoW invalid.`);
                 return false;
             }
         }
-        
-        // If all blocks are valid
         return true;
+    }
+    
+    /**
+     * Converts the chain to a JSON object array for storage/transfer.
+     */
+    toJSON() {
+        return {
+            id: this.id,
+            type: this.type,
+            chain: this.chain.map(block => ({
+                index: block.index,
+                timestamp: block.timestamp,
+                transactions: block.transactions,
+                prev_hash: block.prev_hash,
+                nonce: block.nonce,
+                hash: block.hash
+            }))
+        };
     }
 }
 

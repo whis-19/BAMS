@@ -1,0 +1,279 @@
+{
+    "departments": {
+        "DEPT_K7S7IIVZ7": {
+            "id": "DEPT_K7S7IIVZ7",
+            "type": "department",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351187329,
+                    "transactions": {
+                        "message": "DEPARTMENT Genesis Block",
+                        "id": "DEPT_K7S7IIVZ7",
+                        "type": "department",
+                        "creationDate": "2025-11-17T03:46:27.328Z"
+                    },
+                    "prev_hash": "",
+                    "nonce": 11004,
+                    "hash": "00001b2fbc36d1fb54ab4c43c8f5116cae4a624d9210b557550653eb7b7f54e2"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351187404,
+                    "transactions": {
+                        "type": "CREATE_DEPARTMENT",
+                        "name": "Computer Science",
+                        "timestamp": 1763351187404,
+                        "status": "active"
+                    },
+                    "prev_hash": "00001b2fbc36d1fb54ab4c43c8f5116cae4a624d9210b557550653eb7b7f54e2",
+                    "nonce": 108246,
+                    "hash": "00008b5b19b3b4312fc7af44c4cca9711958bfdecd6af397247929ef005a6ee2"
+                }
+            ]
+        },
+        "DEPT_9WPMV3N5L": {
+            "id": "DEPT_9WPMV3N5L",
+            "type": "department",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351199043,
+                    "transactions": {
+                        "message": "DEPARTMENT Genesis Block",
+                        "id": "DEPT_9WPMV3N5L",
+                        "type": "department",
+                        "creationDate": "2025-11-17T03:46:39.043Z"
+                    },
+                    "prev_hash": "",
+                    "nonce": 22763,
+                    "hash": "0000d6160e9998ad4bb1eb38732c6bd8219d73afa9d25b3073bb34116670abfb"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351199139,
+                    "transactions": {
+                        "type": "CREATE_DEPARTMENT",
+                        "name": "SE",
+                        "timestamp": 1763351199138,
+                        "status": "active"
+                    },
+                    "prev_hash": "0000d6160e9998ad4bb1eb38732c6bd8219d73afa9d25b3073bb34116670abfb",
+                    "nonce": 93829,
+                    "hash": "000064cbefbf547015e40ac930980ac89ed69af6f6c3d10d3ec104124d2072a6"
+                }
+            ]
+        }
+    },
+    "classes": {
+        "CLASS_U643PT46Y": {
+            "id": "CLASS_U643PT46Y",
+            "type": "class",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351208204,
+                    "transactions": {
+                        "message": "CLASS Genesis Block",
+                        "id": "CLASS_U643PT46Y",
+                        "type": "class",
+                        "creationDate": "2025-11-17T03:46:48.204Z"
+                    },
+                    "prev_hash": "00008b5b19b3b4312fc7af44c4cca9711958bfdecd6af397247929ef005a6ee2",
+                    "nonce": 32577,
+                    "hash": "00000e1ffcd8e2ab4c5b68fa0c9c596eb670b2d390b72745938f6a087a4a04d5"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351208334,
+                    "transactions": {
+                        "type": "CREATE_CLASS",
+                        "name": "Painter Hunter 2.0",
+                        "departmentId": "DEPT_K7S7IIVZ7",
+                        "timestamp": 1763351208334,
+                        "status": "active"
+                    },
+                    "prev_hash": "00000e1ffcd8e2ab4c5b68fa0c9c596eb670b2d390b72745938f6a087a4a04d5",
+                    "nonce": 71982,
+                    "hash": "0000b22025d944a70db50d28c639dc6d41c7c56359e1378d77df5d2410dea9df"
+                }
+            ]
+        },
+        "CLASS_J3S4M8NUA": {
+            "id": "CLASS_J3S4M8NUA",
+            "type": "class",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351222763,
+                    "transactions": {
+                        "message": "CLASS Genesis Block",
+                        "id": "CLASS_J3S4M8NUA",
+                        "type": "class",
+                        "creationDate": "2025-11-17T03:47:02.762Z"
+                    },
+                    "prev_hash": "000064cbefbf547015e40ac930980ac89ed69af6f6c3d10d3ec104124d2072a6",
+                    "nonce": 58298,
+                    "hash": "0000f81915dd4517e68e157e0e1f17fc0bbf2af44920b05f7675f05ab68c7157"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351223083,
+                    "transactions": {
+                        "type": "CREATE_CLASS",
+                        "name": "ds",
+                        "departmentId": "DEPT_9WPMV3N5L",
+                        "timestamp": 1763351223083,
+                        "status": "active"
+                    },
+                    "prev_hash": "0000f81915dd4517e68e157e0e1f17fc0bbf2af44920b05f7675f05ab68c7157",
+                    "nonce": 12401,
+                    "hash": "00007274ef8f29c2ccbefc3a300be1225e87331f84c2de39fe854adfd02b540c"
+                }
+            ]
+        }
+    },
+    "students": {
+        "STU_NR6E1M4M3": {
+            "id": "STU_NR6E1M4M3",
+            "type": "student",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351342413,
+                    "transactions": {
+                        "message": "STUDENT Genesis Block",
+                        "id": "STU_NR6E1M4M3",
+                        "type": "student",
+                        "creationDate": "2025-11-17T03:49:02.413Z"
+                    },
+                    "prev_hash": "0000b22025d944a70db50d28c639dc6d41c7c56359e1378d77df5d2410dea9df",
+                    "nonce": 108840,
+                    "hash": "0000cfd7da508c55d58ffc57aad6ce69498a340a9e7475af057d264c756b6119"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351342833,
+                    "transactions": {
+                        "type": "CREATE_STUDENT",
+                        "name": "Muhaamad Abdullah",
+                        "rollNumber": "3722",
+                        "departmentId": "DEPT_K7S7IIVZ7",
+                        "classId": "CLASS_U643PT46Y",
+                        "timestamp": 1763351342833,
+                        "status": "active"
+                    },
+                    "prev_hash": "0000cfd7da508c55d58ffc57aad6ce69498a340a9e7475af057d264c756b6119",
+                    "nonce": 17230,
+                    "hash": "00004d85873d76e550e738a36755e0b4534c987521704b6cb93dcd99c2085d27"
+                },
+                {
+                    "index": 2,
+                    "timestamp": 1763351816559,
+                    "transactions": {
+                        "type": "ATTENDANCE_MARK",
+                        "status": "Present",
+                        "timestamp": 1763351816558,
+                        "date": "2025-11-17",
+                        "name": "Muhaamad Abdullah",
+                        "studentName": "Muhaamad Abdullah",
+                        "rollNumber": "3722",
+                        "departmentId": "DEPT_K7S7IIVZ7",
+                        "classId": "CLASS_U643PT46Y"
+                    },
+                    "prev_hash": "00004d85873d76e550e738a36755e0b4534c987521704b6cb93dcd99c2085d27",
+                    "nonce": 21815,
+                    "hash": "0000b5f8066df59fd8abd019ef53d43e7a7e34fee49d7a8fbcf404173119d45a"
+                },
+                {
+                    "index": 3,
+                    "timestamp": 1763353899457,
+                    "transactions": {
+                        "type": "ATTENDANCE_MARK",
+                        "status": "Present",
+                        "timestamp": 1763353899457,
+                        "date": "2025-11-17",
+                        "name": "Muhaamad Abdullah",
+                        "studentName": "Muhaamad Abdullah",
+                        "rollNumber": "3722",
+                        "departmentId": "DEPT_K7S7IIVZ7",
+                        "classId": "CLASS_U643PT46Y"
+                    },
+                    "prev_hash": "0000b5f8066df59fd8abd019ef53d43e7a7e34fee49d7a8fbcf404173119d45a",
+                    "nonce": 52419,
+                    "hash": "0000b46550e4f043da5257420beea9f546fc4184713fbd83736a8986fd4ae088"
+                }
+            ]
+        },
+        "STU_90I0TXNTN": {
+            "id": "STU_90I0TXNTN",
+            "type": "student",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351363150,
+                    "transactions": {
+                        "message": "STUDENT Genesis Block",
+                        "id": "STU_90I0TXNTN",
+                        "type": "student",
+                        "creationDate": "2025-11-17T03:49:23.150Z"
+                    },
+                    "prev_hash": "0000b22025d944a70db50d28c639dc6d41c7c56359e1378d77df5d2410dea9df",
+                    "nonce": 34866,
+                    "hash": "000072f65c79cefa798a9f9b4b1c7bef94c22c40749caf146cbb6ecec4dd0e01"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351363299,
+                    "transactions": {
+                        "type": "CREATE_STUDENT",
+                        "name": "Muhammad Abdullahhh",
+                        "rollNumber": "3712",
+                        "departmentId": "DEPT_K7S7IIVZ7",
+                        "classId": "CLASS_U643PT46Y",
+                        "timestamp": 1763351363299,
+                        "status": "active"
+                    },
+                    "prev_hash": "000072f65c79cefa798a9f9b4b1c7bef94c22c40749caf146cbb6ecec4dd0e01",
+                    "nonce": 155824,
+                    "hash": "0000d8caefb79a10061059fd981a94a75efafed7c90d46937b46f0de4a0c08ba"
+                }
+            ]
+        },
+        "STU_SQGDY96TM": {
+            "id": "STU_SQGDY96TM",
+            "type": "student",
+            "chain": [
+                {
+                    "index": 0,
+                    "timestamp": 1763351375717,
+                    "transactions": {
+                        "message": "STUDENT Genesis Block",
+                        "id": "STU_SQGDY96TM",
+                        "type": "student",
+                        "creationDate": "2025-11-17T03:49:35.717Z"
+                    },
+                    "prev_hash": "00007274ef8f29c2ccbefc3a300be1225e87331f84c2de39fe854adfd02b540c",
+                    "nonce": 52993,
+                    "hash": "000073f6801b23540a27747ace9d5bf77ba9ed03b28e0320c99a96cfd0d25721"
+                },
+                {
+                    "index": 1,
+                    "timestamp": 1763351375943,
+                    "transactions": {
+                        "type": "CREATE_STUDENT",
+                        "name": "Qamar uz Zaman",
+                        "rollNumber": "3722",
+                        "departmentId": "DEPT_9WPMV3N5L",
+                        "classId": "CLASS_J3S4M8NUA",
+                        "timestamp": 1763351375943,
+                        "status": "active"
+                    },
+                    "prev_hash": "000073f6801b23540a27747ace9d5bf77ba9ed03b28e0320c99a96cfd0d25721",
+                    "nonce": 105749,
+                    "hash": "0000e8bf5a331bbb9c1937352a56c014ff78faf3b5a6ffbaaf6e652a49db5335"
+                }
+            ]
+        }
+    }
+}

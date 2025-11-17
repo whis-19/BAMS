@@ -3,75 +3,1025 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAMS Control Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <title>BAMS - Blockchain Attendance Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        /* Basic CSS for a clean, professional UI */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+        header { background-color: #007bff; color: white; padding: 20px; text-align: center; }
+        .container { width: 90%; max-width: 1200px; margin: 20px auto; }
+        nav { background-color: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        nav button { margin-right: 10px; padding: 10px 15px; border: none; background-color: #6c757d; color: white; cursor: pointer; border-radius: 4px; }
+        nav button.active { background-color: #007bff; }
+        .content-section { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 20px; }
+        /* Forms */
+        form label { display: block; margin-top: 10px; font-weight: bold; }
+        form input, form select, form button { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        form button { background-color: #28a745; color: white; cursor: pointer; margin-top: 15px; }
+        /* Data Display/Explorer */
+        .data-list, .blockchain-display { border: 1px solid #ddd; padding: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .block-card { border: 1px solid #007bff; padding: 10px; margin-bottom: 10px; background-color: #eaf3ff; border-radius: 5px; }
+        .block-card strong { color: #007bff; }
+    </style>
 </head>
 <body>
-
-    <h1>Blockchain Attendance Management System</h1>
+    <header>
+        <h1>BAMS - Blockchain Attendance System</h1>
+        <p>3-Layer Hierarchical Chain & Proof of Work Implementation</p>
+    </header>
 
     <div class="container">
-        <div class="column">
-            <h2>Create Entities</h2>
+        <nav>
+            <button id="nav-departments" class="active" onclick="showSection('departments')">Departments (CRUD)</button>
+            <button id="nav-classes" onclick="showSection('classes')">Classes (CRUD)</button>
+            <button id="nav-students" onclick="showSection('students')">Students (CRUD)</button>
+            <button id="nav-attendance" onclick="showSection('attendance')">Attendance</button>
+            <button id="nav-explorer" onclick="showSection('explorer')">Blockchain Explorer</button>
+            <button id="nav-validation" onclick="validateHierarchy()">Validate Hierarchy</button>
+            <button id="nav-3dview" onclick="showSection('bams3d')">3D View</button>
+        </nav>
 
-            <form id="form-create-dept">
-                <h3>1. Create Department</h3>
-                <input type="text" id="dept-name" placeholder="Department Name" required>
-                <button type="submit">Create</button>
-            </form>
+<div id="departments" class="content-section">
+    <h2>🏢 Department Management</h2>
+    <form id="create-dept-form">
+        <label for="dept-name">Department Name:</label>
+        <input type="text" id="dept-name" name="name" required>
+        <button type="button" id="btn-create-dept">Create New Department</button>
+    </form>
+    <h3>Existing Departments</h3>
+    <div id="department-list" class="data-list">
+        <p>Loading departments...</p>
+    </div>
+</div>
 
-            <form id="form-create-class">
-                <h3>2. Create Class</h3>
-                <input type="text" id="class-dept-name" placeholder="Department Name" required>
-                <input type="text" id="class-name" placeholder="Class Name" required>
-                <button type="submit">Create</button>
-            </form>
+<div id="classes" class="content-section" style="display: none;">
+    <h2>🏫 Class Management</h2>
+    <form id="create-class-form">
+        <label for="class-name">Class Name:</label>
+        <input type="text" id="class-name" name="name" required>
+        <label for="class-dept-id">Department:</label>
+        <select id="class-dept-id" name="departmentId" required></select>
+        <button type="button" id="btn-create-class">Create New Class</button>
+    </form>
+    <h3>Classes List</h3>
+    <div id="class-list" class="data-list">
+        <p>Select a department to view classes...</p>
+    </div>
+</div>
 
-            <form id="form-create-student">
-                <h3>3. Create Student</h3>
-                <input type="text" id="student-dept-name" placeholder="Department Name" required>
-                <input type="text" id="student-class-name" placeholder="Class Name" required>
-                <input type="text" id="student-name" placeholder="Student Name" required>
-                <input type="text" id="student-rollno" placeholder="Roll No (e.g., F22-3722)" required>
-                <button type="submit">Create</button>
-            </form>
-        </div>
+<div id="students" class="content-section" style="display: none;">
+    <h2>🧑‍🎓 Student Management (CRUD)</h2>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <form id="create-student-form" style="flex:1;min-width:280px;">
+            <label for="student-name">Student Name:</label>
+            <input type="text" id="student-name" name="name" required>
+            <label for="student-roll">Roll Number (ID):</label>
+            <input type="text" id="student-roll" name="rollNumber" required>
+            <label for="student-dept-id">Department:</label>
+            <select id="student-dept-id" name="departmentId" required></select>
+            <label for="student-class-id">Class:</label>
+            <select id="student-class-id" name="classId" required></select>
+            <button type="button" id="btn-create-student">Create Student</button>
+        </form>
 
-        <div class="column">
-            <h2>Mark Attendance</h2>
-
-            <form id="form-mark-attendance">
-                <h3>Mark Attendance</h3>
-                <input type="text" id="attn-dept" placeholder="Department Name" required>
-                <input type="text" id="attn-class" placeholder="Class Name" required>
-                <input type="text" id="attn-rollno" placeholder="Student Roll No" required>
-                <select id="attn-status" required>
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Leave">Leave</option>
-                </select>
-                <button type="submit">Mark</button>
-            </form>
-
-            <h2>View Student Chain</h2>
-            <form id="form-view-student">
-                <h3>View Student's Full Chain</h3>
-                <input type="text" id="view-dept" placeholder="Department Name" required>
-                <input type="text" id="view-class" placeholder="Class Name" required>
-                <input type="text" id="view-rollno" placeholder="Student Roll No" required>
-                <button type="submit">View Chain</button>
-            </form>
+        <div style="flex:2;min-width:300px;">
+            <h3>Students List</h3>
+            <div id="student-list" class="data-list">
+                <p>Loading students...</p>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="results-container">
-        <h2>API Results & Chain View</h2>
-        <button id="btn-validate-all">Validate Entire System</button>
-        <pre id="api-result">
-            Your API call results will appear here.
-        </pre>
+<div id="attendance" class="content-section" style="display: none;">
+    <h2>📝 Attendance</h2>
+    <form id="mark-attendance-form">
+        <label for="att-student-select">Student:</label>
+        <select id="att-student-select" name="studentId" required>
+            <option value="">Loading students...</option>
+        </select>
+        <label for="att-status">Status:</label>
+        <select id="att-status" name="status" required>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="Leave">Leave</option>
+        </select>
+        <button type="button" id="btn-mark-attendance">Mark Attendance & Mine Block</button>
+    </form>
+    
+    <hr>
+    <h3>Student Attendance Ledger (Block View)</h3>
+    <label for="ledger-student-id">View Ledger for Roll Number:</label>
+    <input type="text" id="ledger-student-id" placeholder="Enter Roll Number">
+    <button onclick="viewStudentLedger()">Load Ledger</button>
+    <div id="student-ledger" class="blockchain-display"></div>
+</div>
+        
+        <div id="explorer" class="content-section" style="display: none;">
+            <h2>⛓️ Blockchain Explorer</h2>
+            <p>**Note:** Altering any block in a parent chain (Department or Class) should invalidate all child chains.</p>
+            
+            <button onclick="loadExplorerData()">Refresh Explorer Data</button>
+            
+            <div id="explorer-output" style="margin-top: 20px;">
+                </div>
+        </div>
+
+        <div id="bams3d" class="content-section" style="display: none;">
+            <h2>3D Blockchain Visualization</h2>
+            <div id="blockchain-3d" style="width: 100%; height: 600px; border: 1px solid #ccc;"></div>
+        </div>
+
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const API_BASE = window.location.hostname === '127.0.0.1' 
+            ? 'http://127.0.0.1:3000/api' 
+            : 'http://localhost:3000/api';      
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        if (section && section.style) {
+            section.style.display = 'none';
+        }
+    });
+    
+    // Show target section if it exists
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection && targetSection.style) {
+        targetSection.style.display = 'block';
+    }
+    
+    // Update active button
+    document.querySelectorAll('nav button').forEach(button => {
+        if (button && button.classList) {
+            button.classList.remove('active');
+        }
+    });
+    
+    const navButton = document.getElementById(`nav-${sectionId}`);
+    if (navButton && navButton.classList) {
+        navButton.classList.add('active');
+    }
+    
+    // Auto-load data when switching sections
+    if (sectionId === 'departments') {
+        fetchDepartments();
+    } else if (sectionId === 'classes') {
+        fetchDepartments();
+        fetchClasses();
+    } else if (sectionId === 'students') {
+        fetchDepartments();
+        fetchClasses();
+        fetchStudents();
+    } else if (sectionId === 'explorer') {
+        loadExplorerData();
+    } else if (sectionId === 'bams3d') {
+        init3DView();
+    }
+}
+  
+        
+        // --- Utility Functions ---
+        async function apiFetch(url, options = {}) {
+            try {
+                console.log(`Fetching: ${API_BASE}${url}`, options);
+                const response = await fetch(API_BASE + url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(options.headers || {})
+                    }
+                });
+                
+                // Get response text first to handle both JSON and non-JSON responses
+                const responseText = await response.text();
+                let data;
+                
+                try {
+                    data = responseText ? JSON.parse(responseText) : {};
+                } catch (e) {
+                    console.error('Failed to parse JSON:', responseText);
+                    throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+                }
+                
+                if (!response.ok) {
+                    const errorMessage = data.message || 
+                                      data.error || 
+                                      `API call failed with status ${response.status}`;
+                    throw new Error(errorMessage);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API Error Details:', {
+                    url: API_BASE + url,
+                    error: error.message,
+                    stack: error.stack
+                });
+                alert('API Error: ' + error.message);
+                throw error;
+            }
+        }
+        
+        // --- Department Functions ---
+async function fetchDepartments() {
+    try {
+        const departments = await apiFetch('/departments');
+        const list = document.getElementById('department-list');
+        list.innerHTML = departments.map(d => 
+            `<div><strong>${d.name}</strong> (ID: ${d.id}) - Status: ${d.status} - Hash: ${d.latestBlockHash ? d.latestBlockHash.substring(0, 10) + '...' : 'N/A'}</div>`
+        ).join('');
+
+        // Populate class creation department select
+        const classDeptSelect = document.getElementById('class-dept-id');
+        classDeptSelect.innerHTML = departments.filter(d => d.status !== 'deleted').map(d => 
+            `<option value="${d.id}">${d.name}</option>`
+        ).join('');
+
+        // Populate student creation department select
+        const studentDeptSelect = document.getElementById('student-dept-id');
+        if (studentDeptSelect) {
+            studentDeptSelect.innerHTML = departments.filter(d => d.status !== 'deleted').map(d => 
+                `<option value="${d.id}">${d.name}</option>`
+            ).join('');
+            
+            // --- FIX START: Manually trigger the change event to load classes for the default selection ---
+            if (studentDeptSelect.value) {
+                studentDeptSelect.dispatchEvent(new Event('change'));
+            }
+            // --- FIX END ---
+        }
+    } catch (e) {
+        document.getElementById('department-list').innerHTML = `<p style="color:red;">Error loading departments.</p>`;
+    }
+}
+
+        
+        document.getElementById('create-dept-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const name = document.getElementById('dept-name').value;
+                await apiFetch('/departments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                alert('Department created and Genesis Block Mined!');
+                document.getElementById('create-dept-form').reset();
+                // Force refresh all data
+                await Promise.all([
+                    fetchDepartments(),
+                    fetchClasses(),
+                    fetchStudents()
+                ]);
+            } catch (error) {
+                console.error('Error creating department:', error);
+                alert('Failed to create department: ' + error.message);
+            }
+        });
+        
+        // --- Class Functions ---
+        async function fetchClasses() {
+            try {
+                const classes = await apiFetch('/classes');
+                const list = document.getElementById('class-list');
+                list.innerHTML = classes.map(c => 
+                    `<div>**${c.name}** (ID: ${c.id}) - Dept: ${c.departmentId} - Status: ${c.status} (Latest Hash: ${c.latestBlockHash.substring(0, 10)}...)</div>`
+                ).join('');
+            } catch (e) {
+                document.getElementById('class-list').innerHTML = `<p style="color:red;">Error loading classes.</p>`;
+            }
+        }
+
+        document.getElementById('create-class-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const name = document.getElementById('class-name').value;
+                const departmentId = document.getElementById('class-dept-id').value;
+                
+                await apiFetch('/classes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, departmentId })
+                });
+                
+                alert('Class created and Genesis Block Mined!');
+                document.getElementById('create-class-form').reset();
+                
+                // Refresh all related data
+                await Promise.all([
+                    fetchDepartments(),
+                    fetchClasses(),
+                    fetchStudents()
+                ]);
+                
+                // If we're on the classes section, refresh the explorer data too
+                if (document.getElementById('nav-classes').classList.contains('active')) {
+                    loadExplorerData();
+                }
+            } catch (error) {
+                console.error('Error creating class:', error);
+                alert('Failed to create class: ' + error.message);
+            }
+        });
+
+// When department select changes in the create-student form, update class options
+document.getElementById('student-dept-id').addEventListener('change', async (e) => {
+    const deptId = e.target.value;
+    try {
+        const classes = await apiFetch('/classes');
+        const classSelect = document.getElementById('student-class-id');
+        
+        // Filter classes. 
+        // FIX: Used '==' instead of '===' to handle string vs number ID mismatches
+        const filteredClasses = classes.filter(c => c.departmentId == deptId);
+        
+        if (filteredClasses.length === 0) {
+            classSelect.innerHTML = '<option value="">No classes in this Dept</option>';
+        } else {
+            classSelect.innerHTML = filteredClasses.map(c => 
+                `<option value="${c.id}">${c.name || c.id}</option>`
+            ).join('');
+        }
+    } catch (err) {
+        console.error('Error populating classes for dept', err);
+    }
+});
+        // --- Student/Attendance Functions ---
+        
+        async function viewStudentLedger(studentId = null) {
+            const id = studentId || document.getElementById('ledger-student-id').value;
+            const ledgerDiv = document.getElementById('student-ledger');
+            ledgerDiv.innerHTML = '<p>Loading ledger...</p>';
+            
+            if (!id) {
+                ledgerDiv.innerHTML = '<p>Please enter a Student Roll Number (ID).</p>';
+                return;
+            }
+            
+            try {
+                // If user entered a roll number or something that's not a STU_ id, try to resolve it
+                let studentIdToQuery = id;
+                if (!studentIdToQuery.startsWith('STU_')) {
+                    // try search endpoint by roll or name
+                    const searchResults = await apiFetch(`/students/search?q=${encodeURIComponent(studentIdToQuery)}`);
+                    if (Array.isArray(searchResults) && searchResults.length > 0) {
+                        studentIdToQuery = searchResults[0].id;
+                    } else {
+                        ledgerDiv.innerHTML = `<p>No student found for '${id}'. Try selecting from the Attendance dropdown.</p>`;
+                        return;
+                    }
+                }
+
+                // Get student details to show name and roll number
+                const studentDetails = await apiFetch(`/students/${studentIdToQuery}`);
+                const attendance = await apiFetch(`/students/${studentIdToQuery}/attendance`);
+                
+                if (!attendance || attendance.length === 0) {
+                    ledgerDiv.innerHTML = `
+                        <h3>Attendance Ledger for ${studentDetails.name || 'Student'} (${studentDetails.rollNumber || studentIdToQuery})</h3>
+                        <p>No attendance records found.</p>`;
+                    return;
+                }
+                
+                // Sort attendance by date (newest first)
+                const sortedAttendance = [...attendance].sort((a, b) => 
+                    new Date(b.timestamp) - new Date(a.timestamp)
+                );
+                
+                let html = `
+                    <h3>Attendance Ledger for ${studentDetails.name || 'Student'} (${studentDetails.rollNumber || studentIdToQuery})</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Date</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Status</th>
+                                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Recorded At</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                sortedAttendance.forEach(record => {
+                    const date = new Date(record.timestamp);
+                    const formattedDate = date.toLocaleDateString();
+                    const formattedTime = date.toLocaleTimeString();
+                    const statusStyle = record.status === 'Present' ? 'color: green; font-weight: bold;' : 
+                                      record.status === 'Absent' ? 'color: red;' : 'color: orange;';
+                    
+                    html += `
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${record.date || formattedDate}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">
+                                <span style="${statusStyle}">${record.status}</span>
+                            </td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${formattedDate} ${formattedTime}</td>
+                        </tr>`;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        Showing ${sortedAttendance.length} attendance records
+                    </p>`;
+                
+                ledgerDiv.innerHTML = html;
+                
+            } catch (e) {
+                console.error('Error loading student ledger:', e);
+                ledgerDiv.innerHTML = `
+                    <div style="color: red; border: 1px solid #ffcccc; background-color: #ffeeee; padding: 10px; border-radius: 4px;">
+                        <p><strong>Error loading student ledger for ${id}:</strong></p>
+                        <p>${e.message || 'Unknown error occurred'}</p>
+                    </div>`;
+            }
+        }
+
+        // --- Explorer and Validation Functions ---
+        async function validateHierarchy() {
+            const validationButton = document.getElementById('nav-validation');
+            validationButton.innerText = 'Validating...';
+            validationButton.disabled = true;
+            
+            try {
+                const result = await apiFetch('/validate-hierarchy');
+                alert(`Validation Success! Message: ${result.message}`);
+            } catch (error) {
+                alert(`Validation FAILED: ${error.message}. Check console for errors.`);
+            } finally {
+                validationButton.innerText = 'Validate Hierarchy';
+                validationButton.disabled = false;
+            }
+        }
+        
+        async function loadExplorerData() {
+            const explorerDiv = document.getElementById('explorer-output');
+            explorerDiv.innerHTML = '<p>Loading full blockchain hierarchy...</p>';
+            
+            try {
+                const data = await apiFetch('/explorer');
+                let html = '<h3>Department Chains (Layer 1)</h3>';
+                
+                // Display Departments and drill down to children
+                data.departments.forEach(dept => {
+                    html += `<div style="border: 2px solid #007bff; padding: 10px; margin-top: 15px; border-radius: 5px;">
+                        <h4>Department: ${dept.id} (${dept.chain.length} Blocks)</h4>
+                        <div class="blockchain-display">
+                            ${dept.chain.map(block => `
+                                <div class="block-card">
+                                    <p><strong>Index:</strong> ${block.index}</p>
+                                    <p><strong>Data:</strong> ${block.transactions.data ? block.transactions.data.name : 'GENESIS'}</p>
+                                    <p><strong>Prev Hash:</strong> ${block.prev_hash.substring(0, 20)}...</p>
+                                    <p><strong>Hash:</strong> ${block.hash.substring(0, 20)}...</p>
+                                    <p><strong>PoW:</strong> ${block.hash.substring(0, 4) === '0000' ? '✅' : '❌'}</p>
+                                </div>
+                            `).join('')}
+                        </div>`;
+                    
+                    // Filter and display Class Chains for this department
+                    const departmentClasses = data.classes.filter(c => c.chain[0].transactions.departmentId === dept.id);
+                    if (departmentClasses.length > 0) {
+                        html += `<h5>Class Chains (Layer 2 - Linked to Dept)</h5>`;
+                        departmentClasses.forEach(classObj => {
+                            html += `<div style="border: 1px solid #28a745; margin: 10px; padding: 10px; border-radius: 5px;">
+                                <h6>Class: ${classObj.id} (${classObj.chain.length} Blocks)</h6>
+                                <p style="font-size: smaller;">**Genesis Link Check:** Prev Hash in Genesis: **${classObj.chain[0].prev_hash.substring(0, 10)}...** (Should match a Dept Block Hash)</p>
+                                <div class="blockchain-display" style="max-height: 200px;">
+                                    ${classObj.chain.map(block => `
+                                        <div class="block-card" style="background-color: #e6fff0;">
+                                            <p><strong>Index:</strong> ${block.index}</p>
+                                            <p><strong>Data:</strong> ${block.transactions.data ? block.transactions.data.name : 'GENESIS'}</p>
+                                            <p><strong>Hash:</strong> ${block.hash.substring(0, 20)}...</p>
+                                        </div>
+                                    `).join('')}
+                                </div>`;
+                                
+                                // Filter and display Student Chains for this class
+                                const classStudents = data.students.filter(s => s.chain[0].transactions.classId === classObj.id);
+                                if (classStudents.length > 0) {
+                                    html += `<h7>Student Chains (Layer 3 - Attendance Ledger)</h4>`;
+                                    classStudents.forEach(studentObj => {
+                                        html += `<div style="border: 1px solid #ffc107; margin: 5px; padding: 5px; border-radius: 3px; font-size: small;">
+                                            <p>Student: **${studentObj.id}** (${studentObj.chain.length} Blocks)</p>
+                                            <p style="font-size: x-small;">**Genesis Link Check:** Prev Hash in Genesis: **${studentObj.chain[0].prev_hash.substring(0, 10)}...** (Should match a Class Block Hash)</p>
+                                            </div>`;
+                                    });
+                                }
+                                
+                            html += `</div>`;
+                        });
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                explorerDiv.innerHTML = html;
+            } catch (e) {
+                explorerDiv.innerHTML = `<p style="color:red;">Error loading blockchain data for explorer.</p>`;
+            }
+        }
+        
+        // Initial
+        // --- New Student / Select handling ---
+        async function fetchStudents() {
+            try {
+                const students = await apiFetch('/students');
+                const list = document.getElementById('student-list');
+                if (!Array.isArray(students) || students.length === 0) {
+                    list.innerHTML = '<p>No students found.</p>';
+                } else {
+                    list.innerHTML = students.map(s => {
+                        // API returns flattened student objects: id, name, rollNumber, departmentId, classId
+                        const name = s.name || s.id;
+                        const roll = s.rollNumber || s.id;
+                        const classId = s.classId || 'N/A';
+                        const deptId = s.departmentId || 'N/A';
+                        return `<div style="padding:8px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;"><div><strong>${name}</strong> <span style="color:#666">(${roll})</span><br/><small>Class: ${classId} • Dept: ${deptId}</small></div><div><button onclick="viewStudent('${s.id}')">View</button> <button onclick="deleteStudent('${s.id}')" style="background:#dc3545;color:#fff">Delete</button></div></div>`;
+                    }).join('');
+                }
+
+                // Populate attendance student select
+                const attSelect = document.getElementById('att-student-select');
+                attSelect.innerHTML = '<option value="">-- Select Student --</option>' + students.map(s => {
+                    const label = `${s.name || s.id} (${s.rollNumber || s.id})`;
+                    return `<option value="${s.id}">${label}</option>`;
+                }).join('');
+
+            } catch (e) {
+                document.getElementById('student-list').innerHTML = '<p style="color:red;">Error loading students.</p>';
+            }
+        }
+
+        async function viewStudent(id) {
+            try {
+                const data = await apiFetch(`/students/${id}`);
+                alert(JSON.stringify(data, null, 2));
+            } catch (e) { console.error(e); alert('Error viewing student'); }
+        }
+
+async function deleteStudent(id) {
+            if (!confirm('Delete student ' + id + '? This will append a delete block.')) return;
+            
+            try {
+                await apiFetch(`/students/${id}`, { method: 'DELETE' });
+                alert('Student marked as deleted in the blockchain!');
+                
+                // Refresh all related data
+                await Promise.all([
+                    fetchDepartments(),
+                    fetchClasses(),
+                    fetchStudents()
+                ]);
+                
+                // If we're on the students section, refresh the explorer data too
+                if (document.getElementById('nav-students').classList.contains('active')) {
+                    loadExplorerData();
+                }
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                alert('Failed to delete student: ' + error.message);
+            }
+        }
+
+        // ==========================================
+        // FIXED: Create Student Form Listener
+        // ==========================================
+        document.getElementById('create-student-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const name = document.getElementById('student-name').value;
+                const rollNumber = document.getElementById('student-roll').value;
+                const departmentId = document.getElementById('student-dept-id').value;
+                const classId = document.getElementById('student-class-id').value;
+                
+                await apiFetch('/students', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ name, rollNumber, departmentId, classId }) 
+                });
+                
+                alert('Student created and Genesis Block mined!');
+                document.getElementById('create-student-form').reset();
+                
+                // Refresh all related data
+                await Promise.all([
+                    fetchDepartments(),
+                    fetchClasses(),
+                    fetchStudents()
+                ]);
+                
+                // If we're on the students section, refresh the explorer data too
+                if (document.getElementById('nav-students').classList.contains('active')) {
+                    loadExplorerData();
+                }
+            } catch (err) { 
+                console.error(err); 
+                alert('Error creating student: ' + err.message); 
+            }
+        });
+        // Attendance submit uses student id from select
+       
+document.getElementById('nav-3dview').addEventListener('click', () => {
+    showSection('bams3d');
+});
+document.getElementById('mark-attendance-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    const form = e.target;
+    const studentId = document.getElementById('att-student-select').value;
+    const status = document.getElementById('att-status').value;
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    if (!studentId) { 
+        alert('Please select a student first'); 
+        return; 
+    }
+
+    // UI Feedback
+    submitButton.disabled = true;
+    submitButton.innerText = "Mining Block...";
+    
+    try {
+        console.log('Sending attendance data:', { studentId, status });
+        
+        // 1. Send the POST request
+        const response = await fetch(API_BASE + '/students/attendance', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ studentId, status }),
+            signal: AbortSignal.timeout(20000)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Attendance response:', data);
+        
+        // 2. Show success message
+        alert('Attendance marked and block mined successfully!');
+
+        // 3. Wait for 2 seconds before refreshing
+        console.log('Waiting before refresh...');
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        // 4. Refresh the data
+        await Promise.all([
+            fetchStudents(),
+            viewStudentLedger(studentId)
+        ]);
+        
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        alert('Failed to mark attendance: ' + error.message);
+    } finally {
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.innerText = "Mark Attendance & Mine Block";
+    }
+    
+    // Prevent form from submitting
+    return false;
+});
+        // Initial
+        document.addEventListener('DOMContentLoaded', () => { 
+        fetchDepartments(); 
+        fetchClasses(); 
+        fetchStudents();
+        init3DView();
+    });
+        // ==========================================
+    // 1. CREATE DEPARTMENT HANDLER
+    // ==========================================
+    document.getElementById('btn-create-dept').addEventListener('click', async () => {
+        const name = document.getElementById('dept-name').value;
+        const btn = document.getElementById('btn-create-dept');
+
+        if (!name) { alert('Please enter a department name'); return; }
+
+        btn.disabled = true;
+        btn.innerText = "Mining Genesis Block...";
+
+        try {
+            await apiFetch('/departments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+
+            alert('Department Created! Refreshing...');
+            document.getElementById('create-dept-form').reset();
+
+            // COOL DOWN DELAY (1s)
+            await new Promise(r => setTimeout(r, 1000));
+
+            // Refresh Data
+            await Promise.all([fetchDepartments(), fetchClasses(), fetchStudents()]);
+        } catch (error) {
+            console.error(error);
+            alert('Error: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Create New Department";
+        }
+    });
+
+    // ==========================================
+    // 2. CREATE CLASS HANDLER
+    // ==========================================
+    document.getElementById('btn-create-class').addEventListener('click', async () => {
+        const name = document.getElementById('class-name').value;
+        const departmentId = document.getElementById('class-dept-id').value;
+        const btn = document.getElementById('btn-create-class');
+
+        if (!name || !departmentId) { alert('Please fill all fields'); return; }
+
+        btn.disabled = true;
+        btn.innerText = "Mining Genesis Block...";
+
+        try {
+            await apiFetch('/classes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, departmentId })
+            });
+
+            alert('Class Created! Refreshing...');
+            document.getElementById('create-class-form').reset();
+
+            // COOL DOWN DELAY (1s)
+            await new Promise(r => setTimeout(r, 1000));
+
+            await Promise.all([fetchDepartments(), fetchClasses(), fetchStudents()]);
+            
+            // If on classes tab, refresh explorer
+            if (document.getElementById('nav-classes').classList.contains('active')) loadExplorerData();
+
+        } catch (error) {
+            console.error(error);
+            alert('Error: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Create New Class";
+        }
+    });
+
+    // ==========================================
+    // 3. CREATE STUDENT HANDLER
+    // ==========================================
+    document.getElementById('btn-create-student').addEventListener('click', async () => {
+        const name = document.getElementById('student-name').value;
+        const rollNumber = document.getElementById('student-roll').value;
+        const departmentId = document.getElementById('student-dept-id').value;
+        const classId = document.getElementById('student-class-id').value;
+        const btn = document.getElementById('btn-create-student');
+
+        if (!name || !rollNumber || !departmentId || !classId) { 
+            alert('Please fill all fields'); return; 
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Mining Student Block...";
+
+        try {
+            await apiFetch('/students', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ name, rollNumber, departmentId, classId }) 
+            });
+
+            alert('Student Created! Refreshing...');
+            document.getElementById('create-student-form').reset();
+
+            // COOL DOWN DELAY (1s)
+            await new Promise(r => setTimeout(r, 1000));
+
+            await Promise.all([fetchDepartments(), fetchClasses(), fetchStudents()]);
+            
+            if (document.getElementById('nav-students').classList.contains('active')) loadExplorerData();
+
+        } catch (error) {
+            console.error(error);
+            alert('Error: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Create Student";
+        }
+    });
+
+    // ==========================================
+    // 4. MARK ATTENDANCE HANDLER
+    // ==========================================
+    document.getElementById('btn-mark-attendance').addEventListener('click', async () => {
+        const studentId = document.getElementById('att-student-select').value;
+        const status = document.getElementById('att-status').value;
+        const btn = document.getElementById('btn-mark-attendance');
+
+        if (!studentId) { alert('Please select a student first'); return; }
+
+        btn.disabled = true;
+        btn.innerText = "Mining Block... (Please Wait)";
+
+        try {
+            // Extended timeout for mining (20s)
+            const response = await fetch(API_BASE + '/students/attendance', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ studentId, status }),
+                signal: AbortSignal.timeout(20000) 
+            });
+            
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+
+            alert('Attendance Marked! Refreshing...');
+
+            // COOL DOWN DELAY (1s) - Critical for server recovery
+            await new Promise(r => setTimeout(r, 1000));
+
+            await Promise.all([fetchStudents(), viewStudentLedger(studentId)]);
+
+        } catch (error) {
+            console.error(error);
+            alert('Error: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Mark Attendance & Mine Block";
+        }
+    });
+    function init3DView() {
+    const container = document.getElementById('blockchain-3d');
+    if (!container) return;
+
+    // Clear any existing canvas
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf0f0f0);
+    
+    const width = container.clientWidth;
+    const height = 600;
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    container.appendChild(renderer.domElement);
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
+    // Camera position
+    camera.position.z = 15;
+    camera.position.y = 10;
+    camera.lookAt(0, 0, 0);
+
+    // Orbit controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Create nodes and connections
+    const nodes = [];
+    const connections = [];
+
+    // BAMS Node
+    const bamsNode = createNode(0, 5, 0, 0x3498db, 'BAMS');
+    nodes.push(bamsNode.mesh);
+
+    // Fetch data from API and create hierarchy
+    Promise.all([
+        apiFetch('/departments'),
+        apiFetch('/classes'),
+        apiFetch('/students')
+    ]).then(([deptsData, classesData, studentsData]) => {
+        const depts = Array.isArray(deptsData) ? deptsData : [];
+        const classes = Array.isArray(classesData) ? classesData : [];
+        const students = Array.isArray(studentsData) ? studentsData : [];
+
+        // Create department nodes
+        depts.forEach((dept, deptIndex) => {
+            const deptNode = createNode(
+                -5 + (deptIndex * 5),
+                3,
+                0,
+                0x2ecc71,
+                dept.name
+            );
+            nodes.push(deptNode.mesh);
+            connections.push(createConnection(bamsNode.position, deptNode.position));
+
+            // Create class nodes for this department
+            const deptClasses = classes.filter(cls => cls.departmentId === dept.id);
+            deptClasses.forEach((cls, classIndex) => {
+                const classNode = createNode(
+                    -5 + (deptIndex * 5) - 2 + (classIndex * 2),
+                    1,
+                    -3,
+                    0xe74c3c,
+                    cls.name
+                );
+                nodes.push(classNode.mesh);
+                connections.push(createConnection(deptNode.position, classNode.position));
+
+                // Create student nodes for this class
+                const classStudents = students.filter(s => s.classId === cls.id);
+                classStudents.forEach((student, studentIndex) => {
+                    const studentNode = createNode(
+                        -5 + (deptIndex * 5) - 2 + (classIndex * 2) - 1 + (studentIndex * 0.5),
+                        -1,
+                        -5,
+                        0xf39c12,
+                        student.name
+                    );
+                    nodes.push(studentNode.mesh);
+                    connections.push(createConnection(classNode.position, studentNode.position));
+                });
+            });
+        });
+
+        // Add all nodes and connections to scene
+        nodes.forEach(node => scene.add(node));
+        connections.forEach(conn => scene.add(conn));
+    }).catch(error => {
+        console.error('Error loading hierarchy data:', error);
+        alert('Failed to load hierarchy data. See console for details.');
+    });
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = 600;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    });
+
+    // Helper functions
+    function createNode(x, y, z, color, label) {
+        const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const material = new THREE.MeshPhongMaterial({ 
+            color: color,
+            transparent: true,
+            opacity: 0.8
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.set(x, y, z);
+
+        // Add label
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 128;
+        context.font = 'Bold 24px Arial';
+        context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        context.fillText(label, 0, 24);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true
+        });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.set(x, y + 1, z);
+        sprite.scale.set(2, 1, 1);
+        
+        scene.add(sprite);
+
+        return { mesh: sphere, position: sphere.position };
+    }
+
+    function createConnection(start, end) {
+        const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+        const material = new THREE.LineBasicMaterial({ 
+            color: 0x7f8c8d,
+            transparent: true,
+            opacity: 0.5
+        });
+        return new THREE.Line(geometry, material);
+    }
+}
+
+    </script>
 </body>
 </html>
