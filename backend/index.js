@@ -2,30 +2,48 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const apiRoutes = require('./src/routes/apiRoutes');
+
 // Ensure HierarchyManager is initialized to load data on startup
-const hierarchyManager = require('./src/core/HierarchyManager');
+let hierarchyManager;
+let departmentService;
+let classService;
+let studentService;
 
-// Initialize services with HierarchyManager
-const departmentServiceFactory = require('./src/services/departmentService');
-const classServiceFactory = require('./src/services/classService');
-const studentServiceFactory = require('./src/services/studentService');
+try {
+    hierarchyManager = require('./src/core/HierarchyManager');
+    
+    // Initialize services with HierarchyManager
+    const departmentServiceFactory = require('./src/services/departmentService');
+    const classServiceFactory = require('./src/services/classService');
+    const studentServiceFactory = require('./src/services/studentService');
 
-const departmentService = departmentServiceFactory(hierarchyManager);
-const classService = classServiceFactory(hierarchyManager);
-const studentService = studentServiceFactory(hierarchyManager);
+    departmentService = departmentServiceFactory(hierarchyManager);
+    classService = classServiceFactory(hierarchyManager);
+    studentService = studentServiceFactory(hierarchyManager);
 
-// Export services globally for controllers to use
-global.departmentService = departmentService;
-global.classService = classService;
-global.studentService = studentService;
-global.hierarchyManager = hierarchyManager;
+    // Export services globally for controllers to use
+    global.departmentService = departmentService;
+    global.classService = classService;
+    global.studentService = studentService;
+    global.hierarchyManager = hierarchyManager;
+    
+    console.log('[INIT] Services initialized successfully');
+} catch (error) {
+    console.error('[INIT] Error initializing services:', error.message);
+    console.error('[INIT] Stack:', error.stack);
+    // Set empty fallbacks so the app doesn't crash
+    global.hierarchyManager = { chains: { departments: {}, classes: {}, students: {} }, validateHierarchy: () => ({ isValid: true, message: 'Uninitialized' }) };
+    global.departmentService = {};
+    global.classService = {};
+    global.studentService = {};
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 const corsOptions = {
-  origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:8000'],
+  origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:8000', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -46,6 +64,12 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api', apiRoutes);
+
+// 404 handler for unmapped routes
+app.use((req, res) => {
+    console.warn(`[404] Unmapped route: ${req.method} ${req.path}`);
+    res.status(404).json({ message: 'Route not found', path: req.path, method: req.method });
+});
 
 // Basic Error Handling
 app.use((err, req, res, next) => {
