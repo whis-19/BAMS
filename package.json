@@ -5,9 +5,7 @@
   "main": "backend/index.js",
   "scripts": {
     "start": "node backend/index.js",
-    "dev": "nodemon backend/index.js",
-    "build": "cd frontend && npm install && npm run build",
-    "vercel-build": "npm install && npm run build"
+    "dev": "nodemon backend/index.js"
   },
   "keywords": [
     "blockchain",

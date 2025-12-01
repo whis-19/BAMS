@@ -42,42 +42,55 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api', apiRoutes);
 
-// Serve static files for the frontend (index.html, css, js)
-app.use(express.static('frontend')); 
-
-// Catch-all route for other GET requests (can serve index.html for SPA if needed)
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: 'frontend' });
-});
-
 // Basic Error Handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Something broke!', error: err.message });
 });
 
-// Start the server
-const server = app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    console.log('Hierarchy Manager initialized and data loaded.');
-});
+// NOTE: Do NOT call app.listen() in a serverless environment like Vercel.
+// Export the Express app so Vercel (@vercel/node) can handle requests.
+// Keep runtime-safe error logging but avoid exiting the process.
+const path = require('path');
+const fs = require('fs');
 
-// Handle server errors
-server.on('error', (err) => {
-    console.error('Server error:', err);
-    process.exit(1);
-});
+// Use process.cwd() for Vercel compatibility; writeable tmp dir for production
+const dataPath = process.env.NODE_ENV === 'production'
+  ? path.join('/tmp', 'bams_structure.json')
+  : path.join(__dirname, 'data', 'bams_structure.json');
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught exception:', err);
-    process.exit(1);
-});
+// Create a function to read/write data
+const readData = () => {
+  try {
+    return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+  } catch (error) {
+    console.error('Error reading data file:', error);
+    return null;
+  }
+};
 
-// Handle unhandled rejections
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection at:', promise, 'reason:', reason);
-    process.exit(1);
-});
+const writeData = (data) => {
+  try {
+    // In Vercel, write to /tmp directory which is writable
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error writing data file:', error);
+    return false;
+  }
+};
 
-export default app;
+// Start server for local development
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`API available at: http://127.0.0.1:${PORT}/api`);
+  });
+}
+
+// Export the Express app so Vercel can use it as a serverless handler
+module.exports = app;
+
+// Optional: also expose read/write helpers for tests or other modules
+module.exports.readData = readData;
+module.exports.writeData = writeData;

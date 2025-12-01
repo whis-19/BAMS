@@ -14,7 +14,6 @@ router.use('/students', studentRoutes);
 // BAMS/Global Endpoints
 router.get('/validate-hierarchy', bamsController.validateHierarchy);
 router.get('/explorer', bamsController.getBlockchainExplorerData);
-router.get('/bams-structure', bamsController.getBlockchainExplorerData); // Alias for 3D view
 router.get('/attendance', bamsController.getAttendanceRecords);
 
 module.exports = router;

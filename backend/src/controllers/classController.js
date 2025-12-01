@@ -4,12 +4,18 @@ const classController = {
     async createClass(req, res) {
         try {
             const { name, departmentId } = req.body;
+            console.log('[CLASS_CONTROLLER] createClass request:', { name, departmentId });
+            
             if (!name || !departmentId) {
                 return res.status(400).json({ message: 'Class name and departmentId are required.' });
             }
+            
+            console.log('[CLASS_CONTROLLER] Available departments:', Object.keys(global.hierarchyManager?.chains?.departments || {}));
+            
             const result = await global.classService.createClass(name, departmentId);
             res.status(201).json({ message: 'Class created successfully.', data: result });
         } catch (error) {
+            console.error('[CLASS_CONTROLLER] Error creating class:', error);
             res.status(500).json({ message: 'Error creating class.', error: error.message });
         }
     },
